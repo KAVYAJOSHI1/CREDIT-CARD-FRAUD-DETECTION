@@ -1,0 +1,3 @@
+INSERT INTO transactions (merchant, amount, currency, country, device, channel, description, risk_score, risk_level, status, reasons)
+SELECT 'Online Electronics Store', 1299.00, 'USD', 'US', 'New device', 'e-commerce', 'First purchase from a new device in another country', 91.40, 'Critical', 'blocked', '["New device fingerprint","Unusual location","High amount","Velocity anomaly"]'::jsonb
+WHERE NOT EXISTS (SELECT 1 FROM transactions WHERE merchant = 'Online Electronics Store')

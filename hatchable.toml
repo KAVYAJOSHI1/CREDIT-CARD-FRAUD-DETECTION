@@ -1,0 +1,3 @@
+[ai]
+required = true
+description = "Used for transaction NLP analysis and fraud explanations."

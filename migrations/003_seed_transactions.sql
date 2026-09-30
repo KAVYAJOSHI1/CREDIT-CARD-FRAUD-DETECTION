@@ -1,0 +1,3 @@
+INSERT INTO transactions (merchant, amount, currency, country, device, channel, description, risk_score, risk_level, status, reasons)
+SELECT 'Coffee House', 8.75, 'USD', 'US', 'Known device', 'card-present', 'Morning coffee purchase near usual location', 7.80, 'Low', 'approved', '["Normal location","Known device","Low amount"]'::jsonb
+WHERE NOT EXISTS (SELECT 1 FROM transactions WHERE merchant = 'Coffee House')
