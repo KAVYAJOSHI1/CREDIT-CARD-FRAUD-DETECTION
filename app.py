@@ -1,23 +1,30 @@
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
-import pandas as pd
 import numpy as np
-import xgboost as xgb
 import time
 import random
+import pickle
+import tensorflow as tf
+from tensorflow.keras.models import load_model
 
 app = Flask(__name__)
 CORS(app)
 
-print("Loading Behavioral XGBoost Model...")
-xgb_model = xgb.XGBClassifier()
-xgb_model.load_model('models/behavioral_xgb_model.json')
+print("Loading Deep Neural Network Model...")
+# Ensure TensorFlow does not allocate all GPU memory if one exists
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
 
-feature_cols = [
-    'distance_from_home', 'distance_from_last_transaction', 
-    'ratio_to_median_purchase_price', 'repeat_retailer', 
-    'used_chip', 'used_pin_number', 'online_order'
-]
+dl_model = load_model('models/deep_learning_model.keras')
+
+print("Loading Scaler...")
+with open('models/dl_scaler.pkl', 'rb') as f:
+    scaler = pickle.load(f)
 
 @app.route('/')
 def home():
@@ -58,14 +65,17 @@ def analyze():
     pin = float(data.get('pin', 0))
     online = float(data.get('online', 0))
     
+    # 1. Scale the input using the scaler saved during training
     X = np.array([[dist_home, dist_last, ratio, repeat, chip, pin, online]])
+    X_scaled = scaler.transform(X)
     
-    prob = float(xgb_model.predict_proba(X)[:, 1][0])
+    # 2. Predict with Deep Learning Model
+    prob = float(dl_model.predict(X_scaled, verbose=0)[0][0])
     score = prob * 100.0
     
     level = "critical" if score >= 80 else ("high" if score >= 55 else ("medium" if score >= 30 else "low"))
     
-    explanation = "Direct ML Analysis complete."
+    explanation = "Deep Neural Network Analysis complete."
     if score > 80:
         explanation += " The behavioral and spatial parameters trigger a definitive block."
     elif score < 30:
