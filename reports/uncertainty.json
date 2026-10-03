@@ -1,0 +1,6 @@
+{
+  "error_rate_low_uncertainty": 0.0001755583731590754,
+  "error_rate_top10pct_uncertainty": 0.0054414604177637355,
+  "mean_std_fraud": 0.039884816855192184,
+  "mean_std_legit": 0.007671616040170193
+}
