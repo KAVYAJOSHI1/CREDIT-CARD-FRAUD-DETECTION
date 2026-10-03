@@ -1,17 +1,27 @@
-# FraudShield AI
+# FraudShield AI — Deep Learning Credit Card Fraud Detection
 
-SaaS credit card fraud detection using ML signals, NLP transaction analysis, AI explanations, alerts, and model monitoring.
+Deep ensemble on the real Kaggle credit-card dataset (284,807 txns, 0.17% fraud).
 
-This folder is a complete Hatchable project. Everything the app needs is in these files: pages, API routes, database migrations, seed data, and the hatchable.toml manifest that declares the services and keys it uses.
+**Models** (`src/deep/`): residual MLP ×3 seeds, FT-Transformer ×2 seeds, denoising autoencoder (unsupervised),
+logistic stacker, XGBoost baseline. Focal loss, AdamW + cosine schedule, no SMOTE, scaler fit on train only.
+Extras: MC-dropout uncertainty, Integrated Gradients explanations.
 
-## Run your own copy
+**Held-out test results (99 frauds)** — see `reports/metrics.json`:
 
-1. Go to https://hatchable.com/deploy
-2. Bring this folder as a .zip, or point the importer at a Git repository that contains it
-3. Your copy gets its own database, its own URL, and connects to your own keys
+| Model | PR-AUC | Precision | Recall |
+|---|---|---|---|
+| XGBoost baseline | 0.879 | 0.931 | 0.818 |
+| ResMLP | 0.876 | 0.965 | 0.828 |
+| Stacked ensemble | 0.870 | 0.848 | 0.848 |
+| FT-Transformer | 0.869 | 0.976 | 0.828 |
+| Autoencoder (no labels) | 0.701 | 0.699 | 0.798 |
 
-## About Hatchable
+The deep models match, not beat, XGBoost; differences are within noise at this test-set size.
 
-Hatchable is where AI-built apps go live. Connect the AI you already use and it can build, deploy, and run apps like this one for you.
-
-Built on Hatchable. https://hatchable.com
+## Run
+```
+pip install -r requirements.txt
+# put creditcard.csv in data/ (Kaggle: mlg-ulb/creditcardfraud)
+python -m src.deep.train      # ~1 hour on CPU; QUICK=1 for a smoke test
+python app.py                 # http://localhost:5000  (SQLite log in db/)
+```

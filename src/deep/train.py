@@ -65,6 +65,8 @@ def summarize(name, y, p, thr):
 
 
 def mc_dropout(model, X, n=30):
+    for l in model.layers:                      # freeze BN -> only Dropout is stochastic
+        if isinstance(l, keras.layers.BatchNormalization): l.trainable = False
     ps = np.stack([model(X, training=True).numpy().ravel() for _ in range(n)])
     return ps.mean(0), ps.std(0)
 

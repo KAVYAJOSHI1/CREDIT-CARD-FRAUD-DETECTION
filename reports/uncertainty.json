@@ -1,6 +1,7 @@
 {
   "error_rate_low_uncertainty": 0.0001755583731590754,
-  "error_rate_top10pct_uncertainty": 0.0054414604177637355,
-  "mean_std_fraud": 0.039884816855192184,
-  "mean_std_legit": 0.007671616040170193
+  "error_rate_top10pct_uncertainty": 0.004914867474109181,
+  "mean_std_fraud": 0.03846247121691704,
+  "mean_std_legit": 0.008717219345271587,
+  "note": "BatchNorm frozen; dropout only"
 }

@@ -18,10 +18,11 @@ def load_splits(path="data/creditcard.csv"):
     feats = [c for c in df.columns if c != "Class"]
     X, y = df[feats].values.astype("float32"), df["Class"].values.astype("float32")
 
-    X_tr, X_tmp, y_tr, y_tmp = train_test_split(X, y, test_size=0.4, stratify=y, random_state=SEED)
-    X_va, X_te, y_va, y_te = train_test_split(X_tmp, y_tmp, test_size=0.5, stratify=y_tmp, random_state=SEED)
+    idx = np.arange(len(y))                        # carried along so the app can replay raw test rows
+    X_tr, X_tmp, y_tr, y_tmp, _, i_tmp = train_test_split(X, y, idx, test_size=0.4, stratify=y, random_state=SEED)
+    X_va, X_te, y_va, y_te, _, i_te = train_test_split(X_tmp, y_tmp, i_tmp, test_size=0.5, stratify=y_tmp, random_state=SEED)
 
     scaler = RobustScaler().fit(X_tr)              # fit on train only -> no leakage
     f = lambda a: np.clip(scaler.transform(a), -10, 10).astype("float32")
     return dict(X_tr=f(X_tr), y_tr=y_tr, X_va=f(X_va), y_va=y_va,
-                X_te=f(X_te), y_te=y_te, scaler=scaler, features=feats)
+                X_te=f(X_te), y_te=y_te, idx_te=i_te, scaler=scaler, features=feats)
